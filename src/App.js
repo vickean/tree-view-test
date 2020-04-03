@@ -100,7 +100,7 @@ export default function App() {
   const initialState = {
     selectedOptions: new Set(),
     renderSource: {},
-    renderComps: "",
+    preRenderComponent: "",
   };
 
   const reducer = (prevState, action) => {
@@ -114,6 +114,9 @@ export default function App() {
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  /**
+   * To simulate data being queried in from db.
+   */
   useEffect(() => {
     dispatch({
       type: "renderSource",
@@ -122,11 +125,40 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (state.renderSource) {
+    if (Object.entries(state.renderSource).length !== 0) {
+      let output = "";
+      Object.values(state.renderSource).map((el) => {
+        let layer1 = "";
+        Object.values(el).map((el2) => {
+          let layer2 = "";
+          Object.values(el2).map((el3) => {
+            console.log(el3.id, el3.label);
+            layer2.concat(
+              layer2,
+              <CheckTreeItem id={el3.id} label={el3.label} />
+            );
+          });
+          layer1.concat(
+            layer1,
+            <CheckTreeItem id={el2.id} label={el2.label}>
+              {layer2}
+            </CheckTreeItem>
+          );
+        });
+
+        output.concat(
+          output,
+          <CheckTreeItem id={el.id} label={el.label}>
+            {layer1}
+          </CheckTreeItem>
+        );
+      });
+      dispatch({
+        type: "preRenderComponent",
+        payload: output,
+      });
     }
   }, [state.renderSource]);
-
-  console.log(Object.values(state.renderSource));
 
   const CheckTreeItem = (props) => {
     const { children, id, label } = props;
@@ -171,6 +203,8 @@ export default function App() {
     );
   };
 
+  // console.log(state.preRenderComponent);
+
   return (
     <div className="App" style={{ margin: "auto", padding: "2rem" }}>
       <h1>Food List</h1>
@@ -213,6 +247,8 @@ export default function App() {
           </CheckTreeItem>
         </CheckTreeItem>
       </TreeView>
+
+      <TreeView>{state.preRenderComponent}</TreeView>
     </div>
   );
 }
