@@ -4,6 +4,8 @@ import {
   Checkbox,
   Typography,
   TextField,
+  Divider,
+  Button
 } from "@material-ui/core";
 import { TreeView, TreeItem, Autocomplete } from "@material-ui/lab";
 
@@ -18,17 +20,17 @@ const data = {
         children: {
           0: {
             label: "with Egg",
-            id: "1b013c0e-75b5-11ea-bc55-0242ac130003",
+            id: "1b013c0e-75b5-11ea-bc55-0242ac130003"
           },
           1: {
             label: "with Chilli",
-            id: "3e4be678-75b5-11ea-bc55-0242ac130003",
+            id: "3e4be678-75b5-11ea-bc55-0242ac130003"
           },
           2: {
             label: "with Ikan Bilis",
-            id: "5acd62b8-75b5-11ea-bc55-0242ac130003",
-          },
-        },
+            id: "5acd62b8-75b5-11ea-bc55-0242ac130003"
+          }
+        }
       },
       1: {
         label: "Steamed",
@@ -36,13 +38,13 @@ const data = {
         children: {
           0: {
             label: "with Fried Chicken",
-            id: "bb498c89-955e-4306-8b07-033be95e1230",
+            id: "bb498c89-955e-4306-8b07-033be95e1230"
           },
           1: {
             label: "with Sambal",
-            id: "fdb871b2-69f3-4d5c-a37c-134561e93cfe",
-          },
-        },
+            id: "fdb871b2-69f3-4d5c-a37c-134561e93cfe"
+          }
+        }
       },
       2: {
         label: "Porridge",
@@ -50,15 +52,15 @@ const data = {
         children: {
           0: {
             label: "with Salted Egg",
-            id: "d66d4227-52e7-412a-bea6-fd24945dc7ac",
+            id: "d66d4227-52e7-412a-bea6-fd24945dc7ac"
           },
           1: {
             label: "with Preseved Lettuce",
-            id: "06507a75-00fb-4c4a-87e8-0becbc21b4e4",
-          },
-        },
-      },
-    },
+            id: "06507a75-00fb-4c4a-87e8-0becbc21b4e4"
+          }
+        }
+      }
+    }
   },
   1: {
     label: "Noodles",
@@ -70,13 +72,13 @@ const data = {
         children: {
           0: {
             label: "with Shrimp",
-            id: "6a3a236b-7e5c-45b0-9a41-2db1313ef02d",
+            id: "6a3a236b-7e5c-45b0-9a41-2db1313ef02d"
           },
           1: {
             label: "with Cabbages",
-            id: "d7190521-0657-416b-b621-8412de2f06d1",
-          },
-        },
+            id: "d7190521-0657-416b-b621-8412de2f06d1"
+          }
+        }
       },
       1: {
         label: "Soup",
@@ -84,23 +86,23 @@ const data = {
         children: {
           0: {
             label: "with Fish Balls",
-            id: "1813bc24-57f0-441d-b495-880e3b182ae9",
+            id: "1813bc24-57f0-441d-b495-880e3b182ae9"
           },
           1: {
             label: "with Shredded Chicken",
-            id: "a9983ad1-f217-4807-88e1-0ea9840b406a",
-          },
-        },
-      },
-    },
-  },
+            id: "a9983ad1-f217-4807-88e1-0ea9840b406a"
+          }
+        }
+      }
+    }
+  }
 };
 
 export default function App() {
   const initialState = {
     selectedOptions: new Set(),
     renderSource: {},
-    preRenderComponent: "",
+    preRenderComponent: []
   };
 
   const reducer = (prevState, action) => {
@@ -118,49 +120,59 @@ export default function App() {
    * To simulate data being queried in from db.
    */
   useEffect(() => {
+    console.log("RUNONCE>>>");
     dispatch({
       type: "renderSource",
-      payload: data,
+      payload: data
     });
   }, []);
 
   useEffect(() => {
     if (Object.entries(state.renderSource).length !== 0) {
-      let output = "";
-      Object.values(state.renderSource).map((el) => {
-        let layer1 = "";
-        Object.values(el).map((el2) => {
-          let layer2 = "";
-          Object.values(el2).map((el3) => {
-            console.log(el3.id, el3.label);
-            layer2.concat(
-              layer2,
-              <CheckTreeItem id={el3.id} label={el3.label} />
+      let output = [];
+      Object.values(state.renderSource).map(el => {
+        let layer1 = [];
+        Object.values(el.children).map(el2 => {
+          let layer2 = [];
+          Object.values(el2.children).map(el3 => {
+            layer2.push(
+              <CheckTreeItem id={el3.id} key={el3.id} label={el3.label} />
             );
           });
-          layer1.concat(
-            layer1,
-            <CheckTreeItem id={el2.id} label={el2.label}>
+          layer1.push(
+            <CheckTreeItem id={el2.id} key={el2.id} label={el2.label}>
               {layer2}
             </CheckTreeItem>
           );
         });
 
-        output.concat(
-          output,
-          <CheckTreeItem id={el.id} label={el.label}>
+        output.push(
+          <CheckTreeItem id={el.id} key={el.id} label={el.label}>
             {layer1}
           </CheckTreeItem>
         );
       });
+
       dispatch({
         type: "preRenderComponent",
-        payload: output,
+        payload: output
       });
     }
   }, [state.renderSource]);
 
-  const CheckTreeItem = (props) => {
+  // if (Object.keys(state.renderSource).length > 0) {
+  //   const layer1 = Object.values(state.renderSource);
+  //   console.log("L1>>> ", layer1);
+  //   const layer2 = layer1.map(el=>{
+
+  //   })
+  // }
+  const CheckTreeView = props => {
+    const { children } = props;
+    return <TreeView>{children}</TreeView>;
+  };
+
+  const CheckTreeItem = props => {
     const { children, id, label } = props;
 
     const idExists = state.selectedOptions.has(id);
@@ -168,7 +180,9 @@ export default function App() {
     const content = (
       <div>
         <Checkbox
-          onClick={(e) => e.stopPropagation}
+          onClick={e => {
+            e.stopPropagation();
+          }}
           checked={idExists}
           onChange={() => {
             if (idExists) {
@@ -176,14 +190,14 @@ export default function App() {
               newSet.delete(id);
               dispatch({
                 type: "selectedOptions",
-                payload: newSet,
+                payload: newSet
               });
             } else {
               let newSet = new Set(state.selectedOptions);
               newSet.add(id);
               dispatch({
                 type: "selectedOptions",
-                payload: newSet,
+                payload: newSet
               });
             }
           }}
@@ -196,13 +210,15 @@ export default function App() {
 
     const treeItemProps = idExists ? { TransitionProps: { in: false } } : {};
 
+    console.log(state.selectedOptions, id, state.selectedOptions.has(id));
     return (
-      <TreeItem nodeId={id} label={content} {...treeItemProps}>
+      <TreeItem nodeId={`${id}`} label={content} {...treeItemProps}>
         {children}
       </TreeItem>
     );
   };
 
+  // console.log(state.selectedOptions);
   // console.log(state.preRenderComponent);
 
   return (
@@ -217,6 +233,8 @@ export default function App() {
         multiline
         fullWidth
       />
+
+      <Divider style={{ marginTop: "1rem" }} />
 
       <TreeView>
         <CheckTreeItem id="aasd" label="aasd">
@@ -248,7 +266,22 @@ export default function App() {
         </CheckTreeItem>
       </TreeView>
 
-      <TreeView>{state.preRenderComponent}</TreeView>
+      <Divider />
+
+      <CheckTreeView children={state.preRenderComponent} />
+
+      <Divider style={{ marginTop: "1rem" }} />
+
+      <Button
+        onClick={() =>
+          console.log(
+            state.selectedOptions,
+            state.selectedOptions.has("4b3957a4-75b4-11ea-bc55-0242ac130003")
+          )
+        }
+      >
+        Checkmate!
+      </Button>
     </div>
   );
 }
